@@ -11,11 +11,13 @@ s3client = boto3.client('s3')
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 class S3Tool:
+
     def __init__(self):
         
         self.dirs = []
         self.BASE_DIR = str(Path(__file__).resolve().parent.parent) + "/S3Tool/"
-
+        self.more_objects= False
+        self.found_token = False
 
     def change_client(self, ID, SECRET):
         self.client = boto3.client(
@@ -24,13 +26,29 @@ class S3Tool:
             aws_access_key_id=ID,
             aws_secret_access_key=SECRET
         )
+
     def create_bucket(self):
         bucket_name = 'python-sdk-sample-{}'.format(uuid.uuid4())
         print('Creating new bucket with name: {}'.format(bucket_name))
         s3client.create_bucket(Bucket=bucket_name)
 
+
+
+    def list_bucket_contents(self):
+        for key in s3client.list_objects(Bucket="")['Contents']:
+            print(key['Key'])
+
+    def move_bucket(self, new_bucket_name, bucket_to_copy):
+        for key in s3.list_objects(Bucket=bucket_to_copy)['Contents']:
+            files = key['Key']
+            copy_source = {'Bucket': "bucket_to_copy",'Key': files}
+            s3_resource.meta.client.copy(copy_source, new_bucket_name, files)
+            print(files)
+
     def list_buckets(self):
+        
         list_buckets_resp = s3client.list_buckets()
+
         for bucket in list_buckets_resp['Buckets']:
             # print(bucket["Name"])
             self.dirs.append(bucket["Name"])
@@ -40,8 +58,10 @@ class S3Tool:
         print(self.dirs, "#Buckets to Copy: ",len(self.dirs))
     
     def make_directories(self):
+
         os.mkdir(self.BASE_DIR + "/Backups")
         self.BASE_DIR = str(Path(__file__).resolve().parent.parent) + "/S3Tool/Backups/"
+
         for x in range(len(self.dirs)):
             _BASE_DIR = self.BASE_DIR
             full_path = _BASE_DIR + self.dirs[x]
@@ -49,10 +69,10 @@ class S3Tool:
             print(x, _BASE_DIR, "   :", isdir)
             if not(isdir):
                 os.mkdir(full_path)
-                pass
+                
             else:
                 print("fuckyou")
-            
+        
 
         
 
@@ -71,4 +91,5 @@ if __name__ == "__main__":
     print("Starting.......")
     x = S3Tool()
     x.main() 
-    x.make_directories()
+    x.list_bucket_contents()
+    # x.make_directories()
