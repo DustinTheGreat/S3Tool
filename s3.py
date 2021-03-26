@@ -54,7 +54,7 @@ class S3Tool:
 		#         print(space)
 		# try:
 		new_dirs  = []
-		bucket = "cloud.vegatouch-dev.com"
+		bucket = ""
 		# self.BASE_DIR = self.BASE_DIR + "/" + bucket 
 		for key in s3client.list_objects(Bucket=bucket)['Contents']:
 			self.BASE_DIR = self.BASE_DIR + "/" + bucket 
