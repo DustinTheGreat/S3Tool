@@ -35,8 +35,27 @@ class S3Tool:
 
 
     def list_bucket_contents(self):
-        for key in s3client.list_objects(Bucket="")['Contents']:
-            print(key['Key'])
+        space = "#################################################"
+
+        for _dirs in self.dirs:
+            #clean this up later
+            if len(_dirs) <= len(space):
+                _dirs_len=  len(_dirs)
+                diff = int((len(space) -_dirs_len))
+                print("diff", diff)
+                header  = ("#" * diff) + _dirs + ("#" * diff)
+                print(space)
+                print(diff)
+                print(space)
+            else:
+                print(space)
+                print(_dirs)
+                print(space)
+            try:
+                for key in s3client.list_objects(Bucket=_dirs)['Contents']:
+                    print("    -", key['Key'])
+            except:
+                print("Bucket Dir is empty")
 
     def move_bucket(self, new_bucket_name, bucket_to_copy):
         for key in s3.list_objects(Bucket=bucket_to_copy)['Contents']:
