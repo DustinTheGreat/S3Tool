@@ -167,4 +167,4 @@ if __name__ == "__main__":
 	# x.make_directories()
 
 	# x.list_bucket_contents()
-	x.download_file("cloud.vegatouch-dev.com", "none", "robots.txt")
+x.download_file("test_bucket", "none", "robots.txt")
