@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 import os
 
-s3client = boto3.client('s3')
+# s3client = boto3.client('s3')
 
 
 #change into
@@ -18,6 +18,8 @@ class S3Tool:
 		self.BASE_DIR = str(Path(__file__).resolve().parent.parent) + "/S3Tool/"
 		self.more_objects= False
 		self.found_token = False
+		self.s3client = boto3.client('s3')
+
 
 	def change_client(self, ID, SECRET):
 		self.client = boto3.client(
@@ -26,7 +28,12 @@ class S3Tool:
 			aws_access_key_id=ID,
 			aws_secret_access_key=SECRET
 		)
-
+	def toggle_abstraction(self):
+		if self.s3client === boto3.client('s3'):
+			self.s3client = boto3.resource('s3')
+		else:
+			self.s3client = boto3.client('s3')
+			
 	def create_bucket(self):
 		bucket_name = 'python-sdk-sample-{}'.format(uuid.uuid4())
 		print('Creating new bucket with name: {}'.format(bucket_name))
@@ -56,7 +63,7 @@ class S3Tool:
 		new_dirs  = []
 		bucket = ""
 		# self.BASE_DIR = self.BASE_DIR + "/" + bucket 
-		for key in s3client.list_objects(Bucket=bucket)['Contents']:
+		for key in self.s3client.list_objects(Bucket=bucket)['Contents']:
 			self.BASE_DIR = self.BASE_DIR + "/" + bucket 
 			print("    -", key['Key'])
 			
@@ -65,7 +72,7 @@ class S3Tool:
 			_bucket_path = bucket_path.split("/")
 			_bucket_root = _bucket_path[0]
 			print(_bucket_path)
-			s3client.list_objects(Bucket=bucket)['Contents']
+			self.s3client.list_objects(Bucket=bucket)['Contents']
 			index = 0
 			_bucket_path = _bucket_path[1:-1:]
 			os.mkdir(self.BASE_DIR + "/" + _bucket_root)
@@ -96,6 +103,11 @@ class S3Tool:
 		# except:
 		# 	print("fucking Tried")
 
+	def download_file(self, bucket, bucket_path, file):
+		try:
+			self.s3client.Bucket(bucket).download_file(file, file)
+		except Exception as e:
+			print(e)	
 	def move_bucket(self, new_bucket_name, bucket_to_copy):
 		for key in s3.list_objects(Bucket=bucket_to_copy)['Contents']:
 			files = key['Key']
@@ -105,7 +117,7 @@ class S3Tool:
 
 	def list_buckets(self):
 		
-		list_buckets_resp = s3client.list_buckets()
+		list_buckets_resp = self.s3client.list_buckets()
 
 		for bucket in list_buckets_resp['Buckets']:
 			# print(bucket["Name"])
@@ -133,8 +145,6 @@ class S3Tool:
 				print("fuckyou")
 		
 
-		
-
 	def copy_buckets_cmd(self):
 		self.list_buckets()
 		if len(self.dirs) > 0: #make sure to add < later on becasue AWS uses pagination for long responses.
@@ -146,22 +156,15 @@ class S3Tool:
 		self.list_buckets()
 
 
-
-
-
 	def make_bucket_directories(self):
 		pass
 		
-
-		
-
-
-
 
 if __name__ == "__main__":
 	print("Starting.......")
 	x = S3Tool()
 	x.main() 
-	x.make_directories()
+	# x.make_directories()
 
-	x.list_bucket_contents()
+	# x.list_bucket_contents()
+	x.download_file("cloud.vegatouch-dev.com", "none", "robots.txt")
