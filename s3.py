@@ -63,18 +63,23 @@ class S3Tool:
 			bucket_path =  key['Key']
 			print(bucket_path)
 			_bucket_path = bucket_path.split("/")
-			_bucket_path = _bucket_path[0:-1:]
+			_bucket_root = _bucket_path[0]
 			print(_bucket_path)
 			s3client.list_objects(Bucket=bucket)['Contents']
+			index = 0
+			_bucket_path = _bucket_path[1:-1:]
+			os.mkdir(self.BASE_DIR + "/" + _bucket_root)
 			while len(_bucket_path) > 0:
 
 				print(_bucket_path)
-				b = "/" + _bucket_path[0]
+				b =  _bucket_root 
+				self.BASE_DIR =  self.BASE_DIR + b
+
 				print("I feel like bugs are under my skin")
 				if os.path.exists(self.BASE_DIR + "/" + b):
 					print(self.BASE_DIR + b, " Already Exists")
 				else:
-					b
+					
 					print("New Path ", self.BASE_DIR + "/" + b)
 					# self.BASE_DIR = self.BASE_DIR + _bucket_path[0]
 					os.mkdir(self.BASE_DIR + "/" + b)
@@ -87,7 +92,7 @@ class S3Tool:
 				# 		print("New Path ", self.BASE_DIR + b)
 				# 	print(b, "  ", _bucket_path)
 				_bucket_path.pop(0)
-			self.BASE_DIR = str(Path(__file__).resolve().parent.parent) + "/S3Tool/Backups/"
+			self.BASE_DIR = str(Path(__file__).resolve().parent.parent) + "/S3Tool/Backups"
 		# except:
 		# 	print("fucking Tried")
 
@@ -157,5 +162,6 @@ if __name__ == "__main__":
 	print("Starting.......")
 	x = S3Tool()
 	x.main() 
+	x.make_directories()
+
 	x.list_bucket_contents()
-	# x.make_directories()
